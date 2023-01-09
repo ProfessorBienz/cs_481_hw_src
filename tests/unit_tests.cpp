@@ -5,7 +5,7 @@
 // while EXPECT_* variants continue with the run.
 
 #include "gtest/gtest.h"
-#include "cs_481_hw_src/test_src.hpp"
+#include "cs_481_hw_src/src.hpp"
 
 int main(int argc, char** argv)
 {
@@ -16,9 +16,6 @@ int main(int argc, char** argv)
 
 TEST(TLBTest, TestsIntests)
 {
-    int val0 = return0();
-    int val1 = return1();
-
     ASSERT_EQ(return1(), 1);
     ASSERT_GT(return1(), return0());
     ASSERT_LT(return0(), return1());
