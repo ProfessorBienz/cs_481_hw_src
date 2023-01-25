@@ -8,17 +8,9 @@
 #include <fcntl.h>
 #include <sys/wait.h>
 
-void create_processes();
-
-void grandchild();
-void child();
-void parent();
-
-
-
-void priority(int n_jobs, Job* jobs);
-void priority_rr(int n_jobs, Job* jobs, int time_slice);
-
+/***********************************
+ * Job Structure
+ ***********************************/
 typedef void (*Operation)();
 typedef struct job
 {
@@ -28,10 +20,34 @@ typedef struct job
     Operation run_job;
 } Job;
 
-int jobcmp(const void* a, const void* b);
+
+/***********************************
+ * To be implemented by you
+ **********************************/
+// File processes.cpp
+void run_processes();
+// File scheduler.cpp
+void jobcmp(const void* a, const void* b);
+void priority(int n_jobs, Job* jobs);
+void priority_rr(int n_jobs, Job* jobs, int time_slice);
+
+
+/***********************************
+ * Implemented in each test/example file
+ ***********************************/
+// For use with processes.cpp
+void grandchild();
+void child();
+void parent();
+// For use with scheduler.cpp
 void job0(int time);
 void job1(int time);
 void job2(int time);
 void create_jobs(int* n_jobs, Job** jobs);
+
+
+
+
+
 
 #endif
