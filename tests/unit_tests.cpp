@@ -111,22 +111,13 @@ TEST(ProcessOrderTest, TestsInTests)
 
     char buff[255];
     fscanf(fn, "%s\n", buff);
-    for (int i = 0; i < 10; i++)
-        if (buff[i] != gc[i])
-            printf("i %d, buff %c, gc %c\n", i, buff[i], gc[i]);
     ASSERT_STREQ(buff, gc);
 
     fscanf(fn, "%s\n", buff);
-    for (int i = 0; i < 5; i++)
-        if (buff[i] != c[i])
-            printf("i %d, buff %c, c %c\n", i, buff[i], c[i]);
-    ASSERT_STREQ(buff, gc);
+    ASSERT_STREQ(buff, c);
 
     fscanf(fn, "%s\n", buff);
-    for (int i = 0; i < 6; i++)
-        if (buff[i] != p[i])
-            printf("i %d, buff %c, p %c\n", i, buff[i], p[i]);
-    ASSERT_STREQ(buff, gc);
+    ASSERT_STREQ(buff, p);
 
     fclose(fn);
 }
