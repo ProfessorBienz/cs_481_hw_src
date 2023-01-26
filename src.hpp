@@ -11,7 +11,7 @@
 /***********************************
  * Job Structure
  ***********************************/
-typedef void (*Operation)();
+typedef void (*Operation)(int t);
 typedef struct job
 {
     int idx;
