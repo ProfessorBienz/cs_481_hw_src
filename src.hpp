@@ -27,7 +27,6 @@ typedef struct job
 // File processes.cpp
 void run_processes();
 // File scheduler.cpp
-void jobcmp(const void* a, const void* b);
 void priority(int n_jobs, Job* jobs);
 void priority_rr(int n_jobs, Job* jobs, int time_slice);
 
