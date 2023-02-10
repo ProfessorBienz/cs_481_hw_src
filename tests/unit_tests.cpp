@@ -7,120 +7,167 @@
 #include "gtest/gtest.h"
 #include "cs_481_hw_src/src.hpp"
 
-int counter;
-void job0(int time)
+int main(int argc, char** argv)
 {
-    for (int t = 0; t < time; t++)
-        counter += 3;
-}
-
-void job1(int time)
-{
-    for (int t = 0; t < time; t++)
-        counter *= 2;
-}
-
-void job2(int time)
-{
-    for (int t = 0; t < time; t++)
-        counter = 1;
-}
-
-void create_jobs(int* n_jobs, Job** jobs)
-{
-    *n_jobs = 3;
-
-    Job* example_jobs = (Job*)malloc((*n_jobs)*sizeof(Job));
-    example_jobs[0].priority = 1;
-    example_jobs[0].idx = 0;
-    example_jobs[0].time = 2;
-    example_jobs[0].run_job = job0;
-
-    example_jobs[1].priority = 1;
-    example_jobs[1].idx = 1;
-    example_jobs[1].time = 1;
-    example_jobs[1].run_job = job1;
-
-    example_jobs[2].priority = 0;
-    example_jobs[2].idx = 2;
-    example_jobs[2].time = 3;
-    example_jobs[2].run_job = job2;
-
-    *jobs = example_jobs;
-}
-
-TEST(PriorityTest, TestsIntests)
-{
-    int n_jobs;
-    Job* jobs;
-
-    // Run Test
-    create_jobs(&n_jobs, &jobs);
-    counter = 0;
-    priority(n_jobs, jobs);
-    ASSERT_EQ(counter, 14);
-    free(jobs);
-}
-
-TEST(PriorityRRTest, TestInTests)
-{
-    int n_jobs;
-    Job* jobs;
-    int time_slice = 1;
-
-    // Run Test
-    create_jobs(&n_jobs, &jobs);
-    counter = 0;
-    priority_rr(n_jobs, jobs, time_slice);
-    ASSERT_EQ(counter, 11);
-    free(jobs);
+    ::testing::InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
 
 }
 
-
-
-FILE* fn;
-
-void grandchild()
+TEST(PageTableTest, TestsIntests)
 {
-    fprintf(fn, "Grandchild\n");
+    PageTable* table = new PageTable(16);
+    TLB* tlb = new TLB(4,2);
+    table->add_page(4, 16, 0, 1);
+    table->add_page(6, 25, 1, 1);
+    table->add_page(8, 0, 1, 0);
+    table->add_page(15, 2, 0, 0);
+
+    int addr;
+    int page_size = 4;
+    int virtual_address = 16;
+    addr = virtual_to_physical(virtual_address, page_size, tlb, table);
+    ASSERT_EQ(addr, 64);
+
+    virtual_address = 19;
+    addr = virtual_to_physical(virtual_address, page_size, tlb, table);
+    ASSERT_EQ(addr, 67);
+
+
+
+    delete tlb;
+    delete table; 
 }
 
-void child()
+
+TEST(FIFOTest, TestsIntests)
 {
-    fprintf(fn, "Child\n");
+    FrameList* remove_frame;
+    int count;
+    int idx = 0;
+    FrameList* head = new FrameList(idx++);
+    FrameList* tail = head;
+    for (int i = 0; i < 10; i++)
+    {
+        FrameList* next = new FrameList(idx++);
+        tail->next = next;
+        tail = next;
+    }
+
+    count = fifo(head, &remove_frame);
+    ASSERT_EQ(remove_frame->idx, 0);
+    tail = remove_frame->next;
+    delete remove_frame;
+    head = tail;
+
+    count = fifo(head, &remove_frame);
+    ASSERT_EQ(remove_frame->idx, 1);
+    tail = remove_frame->next;
+    delete remove_frame;
+    head = tail;
+
+    count = fifo(head, &remove_frame);
+    ASSERT_EQ(remove_frame->idx, 2);
+    tail = remove_frame->next;
+    delete remove_frame;
+    head = tail;
+
+    for (int i = 3; i < 10; i++)
+    {
+        FrameList* next = new FrameList(idx++);
+        tail->next = next;
+        tail = next;
+    }
+    count = fifo(head, &remove_frame);
+    ASSERT_EQ(remove_frame->idx, 3);
 }
 
-void parent()
+TEST(LRUTest, TestsIntests)
 {
-    fprintf(fn, "Parent\n");
+    int count;
+    int idx = 0;
+    FrameList* head = new FrameList(idx++);
+    FrameList* tail = head;
+    FrameList* remove_frame;
+    for (int i = 0; i < 10; i++)
+    {
+        FrameList* next = new FrameList(idx++);
+        tail->next = next;
+        tail = next;
+    }
+    count = lru(head, &remove_frame);
+    ASSERT_EQ(remove_frame->idx, 0);
+    head = remove_frame->next;
+    delete remove_frame;
+
+    tail = head;
+    for (int i = 0; i < 5; i++)
+    {
+        tail->access(idx++);
+        tail = tail->next;
+    }
+    count = lru(head, &remove_frame);
+    ASSERT_EQ(remove_frame->idx, 6);
+    tail = head;
+    while (tail->next)
+    {
+        if (tail->next == remove_frame)
+        {
+            tail->next = remove_frame->next;
+            delete remove_frame;
+            break;
+        }
+        tail = tail->next;
+    }
+
+    tail = head;
+    while (tail->next)
+    {
+        if (tail->idx != 8)
+            tail->access(idx++);
+        tail = tail->next;
+    }
+    count = lru(head, &remove_frame);
+    ASSERT_EQ(remove_frame->idx, 8);
 }
 
-TEST(ProcessOrderTest, TestsInTests)
+
+TEST(ClockLRUTest, TestsIntests)
 {
+    int count;
+    int idx = 0;
+    FrameList* head = new FrameList(idx++);
+    FrameList* tail = head;
+    FrameList* remove_frame;
+    for (int i = 0; i < 10; i++)
+    {
+        FrameList* next = new FrameList(idx++);
+        tail->next = next;
+        tail = next;
+    }
 
-    fn = fopen("./procs.output", "w");
-    run_processes();
 
-    const char* gc = "Grandchild";
-    const char* c = "Child";
-    const char* p = "Parent";
+    count = clock_lru(head, &remove_frame);
+    ASSERT_EQ(count, 12);
+    ASSERT_EQ(remove_frame->idx, 0);
 
-    fclose(fn);
-    fn = fopen("./procs.output", "r");
+    count = clock_lru(head, &remove_frame);
+    ASSERT_EQ(count, 1);
+    ASSERT_EQ(remove_frame->idx, 0);
 
-    char buff[255];
-    fscanf(fn, "%s\n", buff);
-    ASSERT_STREQ(buff, gc);
 
-    fscanf(fn, "%s\n", buff);
-    ASSERT_STREQ(buff, c);
+    tail = head;
+    for (int i = 0; i < 5; i++)
+    {
+        tail->access(idx++);
+        tail = tail->next;
+    }
+    count = clock_lru(head, &remove_frame);
+    ASSERT_EQ(count, 6);
+    ASSERT_EQ(remove_frame->idx, 5);
 
-    fscanf(fn, "%s\n", buff);
-    ASSERT_STREQ(buff, p);
-
-    fclose(fn);
 }
+
 
 
 int main(int argc, char** argv)
