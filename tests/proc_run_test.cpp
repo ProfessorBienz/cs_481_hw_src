@@ -26,10 +26,13 @@ void parent()
 
 TEST(ProcessOrderTest, TestsInTests)
 {
+    int pid = getpid();
     for (int i = 0; i < 100; i++)
     {
         fn = fopen("./procs.output", "w");
         run_processes();
+        if (pid != getpid())
+            exit(1);
 
         const char* comparison = "Here";
 
