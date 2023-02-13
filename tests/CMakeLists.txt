@@ -37,6 +37,5 @@ add_executable(pri_rr_high_test pri_rr_high_test.cpp)
 target_link_libraries(pri_rr_high_test homework gtest)
 add_test(PriHighRRTests ./pri_rr_high_test)
 
-
 add_executable(pri_timer pri_timer.cpp)
 target_link_libraries(pri_timer homework)

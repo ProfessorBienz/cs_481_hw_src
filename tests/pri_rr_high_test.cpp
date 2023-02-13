@@ -52,15 +52,19 @@ void create_jobs(int* n_jobs, Job** jobs)
 
 TEST(PriorityTest, TestsIntests)
 {
-    int n_jobs;
-    Job* jobs;
+    for (int i = 0; i < 100; i++)
+    {
+        int n_jobs;
+        Job* jobs;
 
-    // Run Test
-    create_jobs(&n_jobs, &jobs);
-    counter = 0;
-    priority_rr(n_jobs, jobs, 3);
-    ASSERT_EQ(counter, -432);
-    free(jobs);
+        // Run Test
+        create_jobs(&n_jobs, &jobs);
+        counter = 0;
+        priority_rr(n_jobs, jobs, 3);
+        ASSERT_EQ(counter, -432);
+        free(jobs);
+
+    }
 }
 
 int main(int argc, char** argv)
@@ -68,8 +72,7 @@ int main(int argc, char** argv)
     ::testing::InitGoogleTest(&argc, argv);
 
     int ierr = 0;
-    for (int i = 0; i < 100; i++)
-        ierr += RUN_ALL_TESTS();
+    ierr += RUN_ALL_TESTS();
 
     return ierr;
 

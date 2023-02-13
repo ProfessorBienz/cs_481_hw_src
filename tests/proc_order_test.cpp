@@ -26,22 +26,25 @@ void parent()
 
 TEST(ProcessOrderTest, TestsInTests)
 {
-    fn = fopen("./procs.output", "w");
-    run_processes();
-
-    const char* comparisons[3] = {"Grandchild", "Child", "Parent"};
-
-    fclose(fn);
-    fn = fopen("./procs.output", "r");
-
-    char buff[255];
-    for (int i = 0; i < 3; i++)
+    for (int i = 0; i < 100; i++)
     {
-        fscanf(fn, "%s\n", buff);
-        ASSERT_STREQ(buff, comparisons[i]);
-    }
+        fn = fopen("./procs.output", "w");
+        run_processes();
 
-    fclose(fn);
+        const char* comparisons[3] = {"Grandchild", "Child", "Parent"};
+
+        fclose(fn);
+        fn = fopen("./procs.output", "r");
+
+        char buff[255];
+        for (int i = 0; i < 3; i++)
+        {
+            fscanf(fn, "%s\n", buff);
+             ASSERT_STREQ(buff, comparisons[i]);
+        }
+
+        fclose(fn);
+    }
 }
 
 
@@ -50,8 +53,7 @@ int main(int argc, char** argv)
     ::testing::InitGoogleTest(&argc, argv);
 
     int ierr = 0;
-    for (int i = 0; i < 100; i++)
-        ierr += RUN_ALL_TESTS();
+    ierr += RUN_ALL_TESTS();
 
     return ierr;
 

@@ -22,10 +22,13 @@ void parent()
 
 TEST(ProcessOrderTest, TestsInTests)
 {
-    int pid = getpid();
-    run_processes();
+    for (int i = 0; i < 100; i++)
+    {
+        int pid = getpid();
+        run_processes();
 
-    ASSERT_EQ(getpid(), pid);
+        ASSERT_EQ(getpid(), pid);
+    }
 }
 
 
@@ -34,8 +37,7 @@ int main(int argc, char** argv)
     ::testing::InitGoogleTest(&argc, argv);
 
     int ierr = 0;
-    for (int i = 0; i < 100; i++)
-        ierr += RUN_ALL_TESTS();
+    ierr += RUN_ALL_TESTS();
 
     return ierr;
 
