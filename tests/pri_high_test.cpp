@@ -1,0 +1,77 @@
+// EXPECT_EQ and ASSERT_EQ are macros
+// EXPECT_EQ test execution and continues even if there is a failure
+// ASSERT_EQ test execution and aborts if there is a failure
+// The ASSERT_* variants abort the program execution if an assertion fails 
+// while EXPECT_* variants continue with the run.
+//
+
+#include <limits.h>
+
+#include "gtest/gtest.h"
+#include "cs_481_hw_src/src.hpp"
+
+int counter;
+void job0(int time)
+{
+    for (int t = 0; t < time; t++)
+        counter += 3;
+}
+
+void job1(int time)
+{
+    for (int t = 0; t < time; t++)
+        counter *= 2;
+}
+
+void job2(int time)
+{
+    for (int t = 0; t < time; t++)
+        counter -= 1;
+}
+
+void create_jobs(int* n_jobs, Job** jobs)
+{
+    *n_jobs = 5;
+    Job* example_jobs = (Job*)malloc((*n_jobs)*sizeof(Job));
+
+    int priorities[] = {std::numeric_limits<int>::max()-1, std::numeric_limits<int>::max()-1, std::numeric_limits<int>::max()-2, std::numeric_limits<int>::max(), std::numeric_limits<int>::max()};
+    int indices[] = {2, 0, 1, 3, 4};
+    int times[] = {6, 7, 3, 2, 1};
+    Operation run_jobs[] = {job0, job1, job2, job0, job1};
+
+    for (int i = 0; i < *n_jobs; i++)
+    {
+        example_jobs[i].priority = priorities[i];
+        example_jobs[i].idx = indices[i];
+        example_jobs[i].time = times[i];
+        example_jobs[i].run_job = run_jobs[i];
+    }
+
+    *jobs = example_jobs;
+}
+
+TEST(PriorityTest, TestsIntests)
+{
+    int n_jobs;
+    Job* jobs;
+
+    // Run Test
+    create_jobs(&n_jobs, &jobs);
+    counter = 0;
+    priority(n_jobs, jobs);
+    ASSERT_EQ(counter, -720);
+    free(jobs);
+}
+
+int main(int argc, char** argv)
+{
+    ::testing::InitGoogleTest(&argc, argv);
+
+    int ierr = 0;
+    for (int i = 0; i < 100; i++)
+        ierr += RUN_ALL_TESTS();
+
+    return ierr;
+
+}
+
