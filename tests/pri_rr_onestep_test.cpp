@@ -11,19 +11,19 @@ int counter;
 void job0(int time)
 {
     for (int t = 0; t < time; t++)
-        counter += 1;
+        counter += 3;
 }
 
 void job1(int time)
 {
     for (int t = 0; t < time; t++)
-        counter += 1;
+        counter *= 2;
 }
 
 void job2(int time)
 {
     for (int t = 0; t < time; t++)
-        counter += 1;
+        counter -= 1;
 }
 
 void create_jobs(int* n_jobs, Job** jobs)
@@ -58,7 +58,7 @@ TEST(PriorityTest, TestsIntests)
         create_jobs(&n_jobs, &jobs);
         counter = 0;
         priority_rr(n_jobs, jobs, 2);
-        ASSERT_EQ(counter, 17);
+        ASSERT_EQ(counter, 13);
         free(jobs);
     }
 }
