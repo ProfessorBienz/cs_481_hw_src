@@ -31,10 +31,10 @@ void create_jobs(int* n_jobs, Job** jobs)
     *n_jobs = 5;
     Job* example_jobs = (Job*)malloc((*n_jobs)*sizeof(Job));
 
-    int priorities[] = {1, 1, 0, 2, 2};
-    int indices[] = {0, 2, 1, 3, 4};
-    int times[] = {7, 6, 3, 2, 1};
-    Operation run_jobs[] = {job1, job0, job2, job0, job1};
+    int priorities[] = {0, 1, 1, 2, 2};
+    int indices[] = {1, 0, 2, 3, 4};
+    int times[] = {3, 7, 6, 2, 1};
+    Operation run_jobs[] = {job2, job1, job0, job0, job1};
 
     for (int i = 0; i < *n_jobs; i++)
     {

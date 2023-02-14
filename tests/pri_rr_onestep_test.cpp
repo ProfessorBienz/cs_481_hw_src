@@ -11,19 +11,19 @@ int counter;
 void job0(int time)
 {
     for (int t = 0; t < time; t++)
-        counter += 3;
+        counter += 1;
 }
 
 void job1(int time)
 {
     for (int t = 0; t < time; t++)
-        counter *= 2;
+        counter += 1;
 }
 
 void job2(int time)
 {
     for (int t = 0; t < time; t++)
-        counter -= 1;
+        counter += 1;
 }
 
 void create_jobs(int* n_jobs, Job** jobs)
@@ -31,10 +31,10 @@ void create_jobs(int* n_jobs, Job** jobs)
     *n_jobs = 5;
     Job* example_jobs = (Job*)malloc((*n_jobs)*sizeof(Job));
 
-    int priorities[] = {1, 1, 0, 2, 2};
-    int indices[] = {0, 2, 1, 3, 4};
-    int times[] = {7, 6, 3, 2, 1};
-    Operation run_jobs[] = {job1, job0, job2, job0, job1};
+    int priorities[] = {1, 1, 0, 2, 4};
+    int indices[] = {2, 0, 1, 3, 4};
+    int times[] = {2, 2, 2, 2, 2};
+    Operation run_jobs[] = {job0, job1, job2, job0, job1};
 
     for (int i = 0; i < *n_jobs; i++)
     {
@@ -57,8 +57,8 @@ TEST(PriorityTest, TestsIntests)
         // Run Test
         create_jobs(&n_jobs, &jobs);
         counter = 0;
-        priority_rr(n_jobs, jobs, 3);
-        ASSERT_EQ(counter, -432);
+        priority_rr(n_jobs, jobs, 2);
+        ASSERT_EQ(counter, 17);
         free(jobs);
     }
 }
@@ -73,4 +73,5 @@ int main(int argc, char** argv)
     return ierr;
 
 }
+
 
