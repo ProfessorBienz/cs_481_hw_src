@@ -35,9 +35,9 @@ void create_jobs(int* n_jobs, Job** jobs)
     Job* example_jobs = (Job*)malloc((*n_jobs)*sizeof(Job));
 
     int priorities[] = {std::numeric_limits<int>::max()-1, std::numeric_limits<int>::max()-1, std::numeric_limits<int>::max()-2, std::numeric_limits<int>::max(), std::numeric_limits<int>::max()};
-    int indices[] = {2, 0, 1, 3, 4};
-    int times[] = {6, 7, 3, 2, 1};
-    Operation run_jobs[] = {job0, job1, job2, job0, job1};
+    int indices[] = {0, 2, 1, 3, 4};
+    int times[] = {7, 6, 3, 2, 1};
+    Operation run_jobs[] = {job1, job0, job2, job0, job1};
 
     for (int i = 0; i < *n_jobs; i++)
     {
