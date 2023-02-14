@@ -11,17 +11,23 @@ FILE* fn;
 
 void grandchild()
 {
+    fn = fopen("./procs.output", "w");
     fprintf(fn, "Here\n");
+    fclose(fn);
 }
 
 void child()
 {
+    fn = fopen("./procs.output", "a");
     fprintf(fn, "Here\n");
+    fclose(fn);
 }
 
 void parent()
 {
+    fn = fopen("./procs.output", "a");
     fprintf(fn, "Here\n");
+    fclose(fn);
 }
 
 TEST(ProcessOrderTest, TestsInTests)
@@ -31,10 +37,7 @@ TEST(ProcessOrderTest, TestsInTests)
 
     if (rc == 0)
     {
-        fn = fopen("./procs.output", "w");
         run_processes();
-        if (pid == getpid())
-            fclose(fn);
         exit(1);
     }
     else
