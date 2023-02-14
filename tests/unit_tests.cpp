@@ -7,13 +7,6 @@
 #include "gtest/gtest.h"
 #include "cs_481_hw_src/src.hpp"
 
-int main(int argc, char** argv)
-{
-    ::testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
-
-}
-
 TEST(PageTableTest, TestsIntests)
 {
     PageTable* table = new PageTable(16);
@@ -32,8 +25,6 @@ TEST(PageTableTest, TestsIntests)
     virtual_address = 19;
     addr = virtual_to_physical(virtual_address, page_size, tlb, table);
     ASSERT_EQ(addr, 67);
-
-
 
     delete tlb;
     delete table; 

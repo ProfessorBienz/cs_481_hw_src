@@ -8,8 +8,10 @@
 #include <fcntl.h>
 #include <sys/wait.h>
 
+
+
 /***********************************
- * PTE : Page Table Entry
+ * Page Table
  ***********************************/
 class PTE
 {
@@ -18,12 +20,21 @@ class PTE
         {
             PFN = 0;
             protect_bit = 0;
+            valid_bit = 1;
             present_bit = 0;
         }
 
         ~PTE()
         {
 
+        }
+
+        void update_entry(int _PFN, int _protect_bit = 0, int _valid_bit = 1)
+        {
+            PFN = _PFN;
+            protect_bit = _protect_bit;
+            valid_bit = _valid_bit;
+            present_bit = 1;
         }
 
         bool can_access()
@@ -33,79 +44,94 @@ class PTE
 
         int PFN;
         int protect_bit;
+        int valid_bit;
         int present_bit;
 };
 
 
-/***********************************
- * Page Table
- ***********************************/
 class PageTable
 {
     public:
         PageTable(int _num_pages)
         {
             num_pages = _num_pages;
-            if (num_pages)
-            {
-                entries = new PTE[num_pages];
-                valid_bits = new int[num_pages]();
-            }
-            else
-            {
-                entries = NULL;
-                valid_bits = NULL;
-            }
+            entries = new PTE*[num_pages];
+            for (int i = 0; i < num_pages; i++)
+                entries[i] = new PTE();
         }
 
         ~PageTable()
         {
-            if (num_pages)
-            {
-                delete[] entries;
-                delete[] valid_bits;
-            }
+            for (int i = 0; i < num_pages; i++)
+                delete entries[i];
+            delete[] entries;
         }
 
-        void add_page(int VPN, int PFN, int protect_bit = 0)
+        void add_page(int VPN, int PFN, int protect_bit = 0, int valid_bit = 1)
         {
-            entries[VPN].PFN = _PFN;
-            entries[VPN].protect_bit = _protect_bit;
-            valid_bits[VPN] = 1;
+            entries[VPN]->update_entry(PFN, protect_bit, valid_bit);
         }
 
-        void remove_page(int VPN)
-        {
-            valid_bits[VPN] = 0;
-        }
-
-        PTE& lookup(int VPN)
+        PTE* lookup(int VPN)
         {
             return entries[VPN];
         }
 
-        PTE* entries;
-        int* valid_bits;
+
+        PTE** entries;
         int num_pages;
 };
 
 
 /***********************************
- * TLB Set 
+ * TLB 
  ***********************************/
+class TLB_entry
+{
+    public:
+        TLB_entry()
+        {
+            tag = 0;
+            PFN = 0;
+            protect_bit = 0;
+            valid_bit = 0;
+            idx = 0;
+        }
+
+        ~TLB_entry()
+        {
+
+        }
+
+        void update_entry(int _tag, int _PFN, int _protect_bit = 0, int _idx = 0)
+        {
+            tag = _tag;
+            PFN = _PFN;
+            protect_bit = _protect_bit;
+            idx = _idx;
+            valid_bit = 1;
+        }
+
+        bool can_access()
+        {
+            return not protect_bit;
+        }
+
+        int tag;
+        int PFN;
+        int protect_bit;
+        int valid_bit;
+        int idx;
+};
+
 class TLB_set
 {
     public:
-        TLB_set(int _set_size)
+        TLB_set()
         {
-            set_size = _set_size;
-            if (set_size)
-            {
-                entries = new PTE[set_size];
-                valid_bits = new int[set_size]();
-                tags = new int[set_size];
-                indices = new int[set_size];
-            }
+            entries = NULL;
+            set_size = 0;
+            counter = 0;
         }
 
         ~TLB_set()
@@ -115,18 +141,22 @@ class TLB_set
             delete[] entries;
         }
 
-        void add_entry(int tag, PTE& entry)
+        void create_set(int _set_size)
+        {
+            set_size = _set_size;
+            entries = new TLB_entry*[set_size];
+            for (int i = 0; i < set_size; i++)
+                entries[i] = new TLB_entry();
+        }
+
+        void add_entry(int tag, int PFN, int protect_bit = 0)
         {
             // If available spot in set, add TLB entry
             for (int i = 0; i < set_size; i++)
             {
-                if (valid_bits[i] == 0)
+                if (entries[i]->valid_bit == 0)
                 {
-                    valid_bits[i] = 1;
-                    tags[i] = tag;
-                    entries[i]->PFN = entry.PFN;
-                    entries[i]->protect_bit = entry.protect_bit;
-                    entries[i]->present_bit = entry.present_bit;
+                    entries[i]->update_entry(tag, PFN, protect_bit, counter++);
                     return;
                 }
             }
@@ -134,78 +164,52 @@ class TLB_set
             // If no available spots in set, 
             //    1. remove entry with lowest idx
             //    2. add TLB entry to this position
-            int idx = 0;
-            int min_counter;
-            while (idx < set_size)
+            int min_counter = counter;
+            int min_idx = -1;
+            for (int i = 0; i < set_size; i++)
             {
-                if (valid_bits[i])
+                if (entries[i]->idx < min_counter)
                 {
-                    min_counter = indices[i];
-                    break;
-                }
-                idx++;
-            }
-            for (int i = idx+1; i < set_size; i++)
-            {
-                if (min_counter > indices[i])
-                {
-                    min_counter = indices[i];
-                    idx = i;
+                    min_idx = i;
+                    min_counter = entries[i]->idx;
                 }
             }
-
-            // Reset Entry at Min IDX
-            entries[min_idx]->PFN = entry->PFN;
-            entries[min_idx]->protect_bit = entry->protect_bit;
-            entries[min_idx]->present_bit = entry->present_bit;
-            valid_bits[min_idx] = 1;
-            tags[min_idx] = tag;
+            entries[min_idx]->update_entry(tag, PFN, protect_bit, counter++);
         }
 
-        bool lookup(int tag, TLB_entry& entry)
+        bool lookup(int tag, TLB_entry** entry)
         {
             for (int i = 0; i < set_size; i++)
             {
-                if (tags[i] == tag && valid_bits[i] == 1)
+                if (entries[i]->tag == tag && entries[i]->valid_bit==1)
                 {
-                    entry.PFN = entries[i].PFN;
-                    entry.protect_bit = entries[i].protect_bit;
-                    entry.present_bit = entries[i].present_bit;
+                    *entry = entries[i];
                     return true;
                 }
             }
             return false;
         }
 
-        PTE* entries;
-        int* valid_bits;
-        int* tag;
-        int* indices;
+        TLB_entry** entries;
+        int set_size;
+        int counter;
 };
 
-/***********************************
- * TLB K-Way Set-Associative Cache 
- ***********************************/
 class TLB
 {
     public:
         TLB(int _k, int set_size)
         {
             k = _k;
-            if (k > 0)
-            {
-                sets = new TLB_set[k];
-                for (int i = 0; i < k; i++)
-                    sets[i].create_set(set_size);
-            }
+            sets = new TLB_set[k];
+            for (int i = 0; i < k; i++)
+                sets[i].create_set(set_size);
         }
 
         ~TLB()
         {
-            if (k)
-            {
-                delete[] sets;
-            }
+            delete[] sets;
+
         }
 
         void add_entry(int idx, int tag, int PFN, int protect_bit = 0)
@@ -221,7 +225,6 @@ class TLB
         TLB_set* sets;
         int k;
 };
-
 
 
 /***********************************
@@ -265,11 +268,11 @@ int TLB_lookup(TLB* tlb, int VPN);
 int table_lookup(PageTable* table, TLB* tlb, int VPN);
 int get_physical_address(int PFN, int offset, int page_size);
 int virtual_to_physical(int virtual_address, int page_size, TLB* tlb, PageTable* table);
+
 // replacement.cpp
 int fifo(FrameList* active_frames, FrameList** frame_to_remove_ptr);
 int lru(FrameList* active_frames, FrameList** frame_to_remove_ptr);
 int clock_lru(FrameList* active_frames, FrameList** frame_to_remove_ptr);
-
 
 
 /***********************************
