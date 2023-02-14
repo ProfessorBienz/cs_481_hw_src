@@ -39,3 +39,33 @@ add_test(PriHighRRTests ./pri_rr_high_test)
 
 add_executable(pri_timer pri_timer.cpp)
 target_link_libraries(pri_timer homework)
+
+add_executable(pri_fifo_test pri_fifo_test.cpp)
+target_link_libraries(pri_fifo_test homework gtest)
+add_test(PriFIFOTests ./pri_fifo_test)
+
+add_executable(pri_order_idx_test pri_order_idx_test.cpp)
+target_link_libraries(pri_order_idx_test homework gtest)
+add_test(PriOrderIDXTests ./pri_order_idx_test)
+
+add_executable(pri_order_simple_test pri_order_simple_test.cpp)
+target_link_libraries(pri_order_simple_test homework gtest)
+add_test(PriOrderSimpleTests ./pri_order_simple_test)
+
+add_executable(pri_fifo_test pri_fifo_test.cpp)
+target_link_libraries(pri_fifo_test homework gtest)
+add_test(PriRRFIFOTests ./pri_fifo_test)
+
+add_executable(pri_rr_order_idx_test pri_rr_order_idx_test.cpp)
+target_link_libraries(pri_rr_order_idx_test homework gtest)
+add_test(PriRROrderIDXTests ./pri_rr_order_idx_test)
+
+add_executable(pri_rr_order_simple_test pri_rr_order_simple_test.cpp)
+target_link_libraries(pri_rr_order_simple_test homework gtest)
+add_test(PriRROrderSimpleTests ./pri_rr_order_simple_test)
+
+add_executable(pri_rr_onestep_test pri_rr_onestep_test.cpp)
+target_link_libraries(pri_rr_onestep_test homework gtest)
+add_test(PriRROneStepTests ./pri_rr_onestep_test)
+
+
