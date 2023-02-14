@@ -54,6 +54,7 @@ int main(int argc, char* argv[])
     counter = 0;
 
     double t0, tfinal;
+    int idx;
 
     // Find iteration count
     t0 = get_time();
