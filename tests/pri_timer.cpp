@@ -48,27 +48,43 @@ int main(int argc, char* argv[])
 {
     int n_jobs;
     Job* jobs;
-    int n_iter = 25000000;
 
     // Run Test
     create_jobs(&n_jobs, &jobs);
     counter = 0;
 
     double t0, tfinal;
-    t0 = get_time();
 
-    for (int i = 0; i < n_iter; i++)
-    {  
+    // Find iteration count
+    t0 = get_time();
+    idx = 0;
+    while (get_time() - t0 < 1)
+    {
         priority(n_jobs, jobs);
+        idx++;
     }
+
+    // Time Priority Scheduler
+    t0 = get_time();
+    for (int i = 0; i < idx; i++)
+        priority(n_jobs, jobs);
     tfinal = (get_time() - t0) / n_iter;
 
     printf("Priority Scheduler Takes %e Seconds\n", tfinal);    
 
 
+    // Find Iteration Count
     t0 = get_time();
+    idx = 0;
+    while (get_time() - t0 < 1)
+    {
+        priority_rr(n_jobs, jobs, 3);
+        idx++;
+    }
 
-    for (int i = 0; i < n_iter; i++)
+
+    // Time Priority + RR Scheduler
+    for (int i = 0; i < idx; i++)
     {  
         priority_rr(n_jobs, jobs, 3);
     }

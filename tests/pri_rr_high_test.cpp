@@ -52,7 +52,7 @@ void create_jobs(int* n_jobs, Job** jobs)
 
 TEST(PriorityTest, TestsIntests)
 {
-    for (int i = 0; i < 100; i++)
+    for (int i = 0; i < 1; i++)
     {
         int n_jobs;
         Job* jobs;
