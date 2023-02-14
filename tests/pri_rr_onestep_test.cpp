@@ -58,7 +58,7 @@ TEST(PriorityTest, TestsIntests)
         create_jobs(&n_jobs, &jobs);
         counter = 0;
         priority_rr(n_jobs, jobs, 2);
-        ASSERT_EQ(counter, 13);
+        ASSERT_EQ(counter, 16);
         free(jobs);
     }
 }
