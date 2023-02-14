@@ -43,7 +43,6 @@ TEST(ProcessOrderTest, TestsInTests)
 
         const char* comparison = "Here";
 
-        fclose(fn);
         fn = fopen("./procs.output", "r");
 
         char buff[255];

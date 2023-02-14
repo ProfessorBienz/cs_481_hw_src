@@ -44,7 +44,6 @@ TEST(ProcessOrderTest, TestsInTests)
 
         const char* comparisons[3] = {"Grandchild", "Child", "Parent"};
 
-        fclose(fn);
         fn = fopen("./procs.output", "r");
 
         char buff[255];
