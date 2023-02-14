@@ -52,9 +52,9 @@ add_executable(pri_order_simple_test pri_order_simple_test.cpp)
 target_link_libraries(pri_order_simple_test homework gtest)
 add_test(PriOrderSimpleTests ./pri_order_simple_test)
 
-add_executable(pri_fifo_test pri_fifo_test.cpp)
-target_link_libraries(pri_fifo_test homework gtest)
-add_test(PriRRFIFOTests ./pri_fifo_test)
+add_executable(pri_rr_fifo_test pri_rr_fifo_test.cpp)
+target_link_libraries(pri_rr_fifo_test homework gtest)
+add_test(PriRRFIFOTests ./pri_rr_fifo_test)
 
 add_executable(pri_rr_order_idx_test pri_rr_order_idx_test.cpp)
 target_link_libraries(pri_rr_order_idx_test homework gtest)
