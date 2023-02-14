@@ -69,7 +69,7 @@ int main(int argc, char* argv[])
     t0 = get_time();
     for (int i = 0; i < idx; i++)
         priority(n_jobs, jobs);
-    tfinal = (get_time() - t0) / n_iter;
+    tfinal = (get_time() - t0) / idx;
 
     printf("Priority Scheduler Takes %e Seconds\n", tfinal);    
 
@@ -89,7 +89,7 @@ int main(int argc, char* argv[])
     {  
         priority_rr(n_jobs, jobs, 3);
     }
-    tfinal = (get_time() - t0) / n_iter;
+    tfinal = (get_time() - t0) / idx;
 
     printf("Priority RR Scheduler Takes %e Seconds\n", tfinal);    
     
