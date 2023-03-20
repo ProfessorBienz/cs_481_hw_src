@@ -6,284 +6,79 @@
 #include <unistd.h>
 #include <string.h>
 #include <fcntl.h>
-#include <sys/wait.h>
+#include <pthread.h>
+#include <queue>
+#include <signal.h>
 
-
-
-/***********************************
- * Page Table
- ***********************************/
-class PTE
+// Lock Struct
+typedef struct __lock_t
 {
-    public:
-        PTE()
-        {
-            PFN = 0;
-            protect_bit = 0;
-            valid_bit = 1;
-            present_bit = 0;
-        }
+    // Needed for ticket locks
+    int ticket;
+    int turn;
 
-        ~PTE()
-        {
+    // Needed for semaphore lock
+    int S;
+    pthread_mutex_t mutex; 
 
-        }
+    // Needed for queue lock
+    int flag;
+    int guard;
+    queue_t queue;
+} lock_t;
 
-        void update_entry(int _PFN, int _protect_bit = 0, int _valid_bit = 1)
-        {
-            PFN = _PFN;
-            protect_bit = _protect_bit;
-            valid_bit = _valid_bit;
-            present_bit = 1;
-        }
-
-        bool can_access()
-        {
-            return not protect_bit;
-        }
-
-        int PFN;
-        int protect_bit;
-        int valid_bit;
-        int present_bit;
-};
+void init(lock_t* lock);
+void lock(lock_t* lock);
+void unlock(lock_t* lock);
+void destroy(lock_t* lock);
 
 
-class PageTable
+
+// Queue Struct
+typedef struct __node_t
 {
-    public:
-        PageTable(int _num_pages)
-        {
-            num_pages = _num_pages;
-            entries = new PTE*[num_pages];
-            for (int i = 0; i < num_pages; i++)
-                entries[i] = new PTE();
-        }
+    struct __node_t* next;
+    pthread_t thread;
+} node_t;
 
-        ~PageTable()
-        {
-            for (int i = 0; i < num_pages; i++)
-                delete entries[i];
-            delete[] entries;
-        }
-
-        void add_page(int VPN, int PFN, int protect_bit = 0, int valid_bit = 1)
-        {
-            entries[VPN]->update_entry(PFN, protect_bit, valid_bit);
-        }
-
-        PTE* lookup(int VPN)
-        {
-            return entries[VPN];
-        }
-
-
-        PTE** entries;
-        int num_pages;
-};
-
-
-/***********************************
- * TLB 
- ***********************************/
-class TLB_entry
+typedef struct __queue_t
 {
-    public:
-        TLB_entry()
-        {
-            tag = 0;
-            PFN = 0;
-            protect_bit = 0;
-            valid_bit = 0;
-            idx = 0;
-        }
+    node_t* head;
+    node_t* tail;
+    int size;
+} queue_t;
 
-        ~TLB_entry()
-        {
+void queue_init(queue_t& queue);
+int queue_empty(queue_t& queue);
+void queue_add(queue_t& queue, pthread_t thread);
+pthread_t queue_remove(queue_t& queue);
 
-        }
 
-        void update_entry(int _tag, int _PFN, int _protect_bit = 0, int _idx = 0)
-        {
-            tag = _tag;
-            PFN = _PFN;
-            protect_bit = _protect_bit;
-            idx = _idx;
-            valid_bit = 1;
-        }
 
-        bool can_access()
-        {
-            return not protect_bit;
-        }
-
-        int tag;
-        int PFN;
-        int protect_bit;
-        int valid_bit;
-        int idx;
-};
-
-class TLB_set
+// Compute PI
+typedef struct __calc_t
 {
-    public:
-        TLB_set()
-        {
-            entries = NULL;
-            set_size = 0;
-            counter = 0;
-        }
+    int global_sum;
+    int global_n_samples;
+    int global_n_threads;
+    lock_t lock;
+} calc_t;
 
-        ~TLB_set()
-        {
-            for (int i = 0; i < set_size; i++)
-                delete entries[i];
-            delete[] entries;
-        }
-
-        void create_set(int _set_size)
-        {
-            set_size = _set_size;
-            entries = new TLB_entry*[set_size];
-            for (int i = 0; i < set_size; i++)
-                entries[i] = new TLB_entry();
-        }
-
-        void add_entry(int tag, int PFN, int protect_bit = 0)
-        {
-            // If available spot in set, add TLB entry
-            for (int i = 0; i < set_size; i++)
-            {
-                if (entries[i]->valid_bit == 0)
-                {
-                    entries[i]->update_entry(tag, PFN, protect_bit, counter++);
-                    return;
-                }
-            }
-
-            // If no available spots in set, 
-            //    1. remove entry with lowest idx
-            //    2. add TLB entry to this position
-            int min_counter = counter;
-            int min_idx = -1;
-            for (int i = 0; i < set_size; i++)
-            {
-                if (entries[i]->idx < min_counter)
-                {
-                    min_idx = i;
-                    min_counter = entries[i]->idx;
-                }
-            }
-            entries[min_idx]->update_entry(tag, PFN, protect_bit, counter++);
-        }
-
-        bool lookup(int tag, TLB_entry** entry)
-        {
-            for (int i = 0; i < set_size; i++)
-            {
-                if (entries[i]->tag == tag && entries[i]->valid_bit==1)
-                {
-                    *entry = entries[i];
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        TLB_entry** entries;
-        int set_size;
-        int counter;
-};
-
-class TLB
+typedef struct __thread_data_t
 {
-    public:
-        TLB(int _k, int set_size)
-        {
-            k = _k;
-            sets = new TLB_set[k];
-            for (int i = 0; i < k; i++)
-                sets[i].create_set(set_size);
-        }
+    calc_t* pi_calc;
+    int thread_id;
+} thread_data_t;
 
-        ~TLB()
-        {
-            delete[] sets;
+void* compute_pi(void* arg);
 
-        }
-
-        void add_entry(int idx, int tag, int PFN, int protect_bit = 0)
-        {
-            sets[idx].add_entry(tag, PFN, protect_bit);
-        }
-        
-        bool lookup(int idx, int tag, TLB_entry** entry)
-        {
-            return sets[idx].lookup(tag, entry); 
-        }
-
-        TLB_set* sets;
-        int k;
-};
+double pthread_compute_pi(int num_threads, int num_samples, int S);
 
 
-/***********************************
- * Frame List : 
- *    for replacment algorithm
- **********************************/
-class FrameList
-{
-    public:
-        FrameList(int _idx)
-        {
-            next = NULL;
-            clock_bit = 1;
-            idx = _idx;
-        }
-
-        ~FrameList()
-        {
-
-        }
-
-
-        void access(int _idx)
-        {
-            clock_bit = 1;
-            idx = _idx;
-        }
-
-        FrameList* next;
-        int idx;
-        int clock_bit;
-};
-
-/***********************************
- * To be implemented by you
- **********************************/
-// translation.cpp
-void split_virtual_address(int virtual_address, int page_size, int* VPN, int* offset);
-void split_VPN(int VPN, int k, int* index, int* tag);
-int TLB_lookup(TLB* tlb, int VPN);
-int table_lookup(PageTable* table, TLB* tlb, int VPN);
-int get_physical_address(int PFN, int offset, int page_size);
-int virtual_to_physical(int virtual_address, int page_size, TLB* tlb, PageTable* table);
-
-// replacement.cpp
-int fifo(FrameList* active_frames, FrameList** frame_to_remove_ptr);
-int lru(FrameList* active_frames, FrameList** frame_to_remove_ptr);
-int clock_lru(FrameList* active_frames, FrameList** frame_to_remove_ptr);
-
-
-/***********************************
- * Implemented in src.cpp 
- ***********************************/
-void protection_fault();
-void segmentation_fault();
-void page_fault();
-void tlb_miss();
-
-
-
+// My Intercept Methods
+long my_time(void* arg);
+int my_rand();
+void rand_init(int global_n);
+void rand_destroy();
 
 #endif

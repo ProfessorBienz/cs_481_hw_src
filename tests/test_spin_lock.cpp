@@ -5,35 +5,27 @@
 // while EXPECT_* variants continue with the run.
 
 #include "gtest/gtest.h"
-#include "cs_481_hw_src/src.hpp"
+#include "hw3_src/lock.hpp"
 
 int main(int argc, char** argv)
 {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
-
 }
 
 TEST(TLBTest, TestsIntests)
 {
-    int PFN;
-    TLB* tlb = new TLB(4,4);
-    tlb->add_entry(0, 16, 256);
-    tlb->add_entry(1, 16, 312);
-    tlb->add_entry(2, 16, 1024);
-    tlb->add_entry(3, 16, 0);
+    lock_t my_lock;
 
-    PFN = TLB_lookup(tlb, 64);
-    ASSERT_EQ(PFN, 256);
-
-    PFN = TLB_lookup(tlb, 65);
-    ASSERT_EQ(PFN, 312);
-
-    PFN = TLB_lookup(tlb, 66);
-    ASSERT_EQ(PFN, 1024);
-
-    PFN = TLB_lookup(tlb, 67);
-    ASSERT_EQ(PFN, 0);
-
-    delete tlb; 
+    init(&my_lock);
+    ASSERT_EQ(my_lock.ticket, 0);
+    ASSERT_EQ(my_lock.turn, 0);
+    
+    lock(&my_lock);
+    ASSERT_EQ(my_lock.ticket, 1);
+    ASSERT_EQ(my_lock.turn, 0);
+    
+    unlock(&my_lock);
+    ASSERT_EQ(my_lock.ticket, 1);
+    ASSERT_EQ(my_lock.turn, 1);
 }
