@@ -75,10 +75,9 @@ void* compute_pi(void* arg);
 double pthread_compute_pi(int num_threads, int num_samples, int S);
 
 
-// My Intercept Methods
-long my_time(void* arg);
-int my_rand();
+// Thread Safe Random Value Generator 
 void rand_init(int global_n);
 void rand_destroy();
+int thread_rand();
 
 #endif

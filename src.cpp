@@ -76,15 +76,7 @@ double pthread_compute_pi(int num_threads, int num_samples, int S)
     return 4.0 * pi_calc->global_sum / (1.0*num_samples);
 }
 
-// My Intercept Methods
-long* my_rand_vals;
-int my_rand_ctr;
-
-long my_time(void* arg)
-{
-    return 2743532;
-}
-
+// Thread Safe Random Value Generator 
 void rand_init(int global_n)
 {
     my_rand_ctr = 0;
@@ -100,7 +92,7 @@ void rand_destroy()
     free(my_rand_vals);
 }
 
-int my_rand()
+int thread_rand()
 {
     // Atomically update to avoid two threads grabbing same random value
     int idx = __sync_fetch_and_add(&my_rand_ctr, 1);
