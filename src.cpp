@@ -1,5 +1,7 @@
 #include "src.hpp"
 
+int my_rand_ctr;
+long* my_rand_vals;
 
 // Initialize Queue Methods
 void queue_init(queue_t& queue)
@@ -44,7 +46,7 @@ void queue_destroy(queue_t& queue)
 
 
 // Compute PI Helper
-double pthread_compute_pi(int num_threads, int num_samples, int S)
+double pthread_compute_pi(int num_threads, int num_samples)
 {
     calc_t* pi_calc = (calc_t*)malloc(sizeof(calc_t));
     pi_calc->global_sum = 0;
@@ -82,7 +84,7 @@ void rand_init(int global_n)
     my_rand_ctr = 0;
     my_rand_vals = (long*)malloc(2*global_n*sizeof(long));
 
-    srand(my_time(NULL));
+    srand(time(NULL));
     for (int i = 0; i < 2*global_n; i++)
         my_rand_vals[i] = rand();
 }

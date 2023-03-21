@@ -1,4 +1,4 @@
-#include "lock.hpp"
+#include "src.hpp"
 #include "stdio.h"
 
 void init(lock_t* lock)

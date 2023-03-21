@@ -5,7 +5,7 @@
 // while EXPECT_* variants continue with the run.
 
 #include "gtest/gtest.h"
-#include "hw3_src/lock.hpp"
+#include "cs_481_hw_src/src.hpp"
 #include <sys/time.h>
 
 lock_t my_lock;
