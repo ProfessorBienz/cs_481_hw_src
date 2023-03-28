@@ -70,7 +70,8 @@ typedef struct __thread_data_t
 
 void* compute_pi(void* arg);
 
-double pthread_compute_pi(int num_threads, int num_samples);
+double pthread_compute_pi(int num_threads, int num_samples, int init_rand = 1);
+double serial_compute_pi(int num_samples, int init_rand = 1);
 
 
 // Thread Safe Random Value Generator 

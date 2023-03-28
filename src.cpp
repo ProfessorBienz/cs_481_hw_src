@@ -45,8 +45,9 @@ void queue_destroy(queue_t& queue)
 }
 
 
+
 // Compute PI Helper
-double pthread_compute_pi(int num_threads, int num_samples)
+double pthread_compute_pi(int num_threads, int num_samples, int init_rand)
 {
     calc_t* pi_calc = (calc_t*)malloc(sizeof(calc_t));
     pi_calc->global_sum = 0;
@@ -57,7 +58,10 @@ double pthread_compute_pi(int num_threads, int num_samples)
     thread_data_t* thread_data = (thread_data_t*)malloc(num_threads*sizeof(thread_data_t));
 
     init(&(pi_calc->lock));
-    rand_init(num_samples);
+
+    if (init_rand)
+        rand_init(num_samples);
+    else my_rand_ctr = 0;
 
     for (int i = 0; i < num_threads; i++)
     {
@@ -71,7 +75,8 @@ double pthread_compute_pi(int num_threads, int num_samples)
     free(threads);
     free(thread_data);
 
-    rand_destroy();
+    if (init_rand)
+        rand_destroy();    
 
     destroy(&(pi_calc->lock));
     
@@ -99,4 +104,35 @@ int thread_rand()
     // Atomically update to avoid two threads grabbing same random value
     int idx = __sync_fetch_and_add(&my_rand_ctr, 1);
     return my_rand_vals[idx];
+}
+
+double serial_compute_pi(int num_samples, int init_rand)
+{
+    double rand_x, rand_y;
+
+    // Initializes thread-safe random value generator 
+    // Do NOT include this in your compute_pi method
+    if (init_rand)
+        rand_init(num_samples);
+    else my_rand_ctr = 0;
+
+    double global_sum = 0;
+
+    double denom = RAND_MAX*0.5;
+    for (int i = 0; i < num_samples; i++)
+    {
+        rand_x = ((double)(thread_rand()) / denom) - 1;
+        rand_y = ((double)(thread_rand()) / denom) - 1;
+
+        if (rand_x*rand_x + rand_y*rand_y <= 1)
+            global_sum++;
+    }
+
+    // Frees thread-safe random value generator 
+    // Do NOT include this in your compute_pi method
+    if (init_rand)
+        rand_destroy(); 
+
+    return 4.0 * global_sum / (1.0*num_samples);
+    
 }

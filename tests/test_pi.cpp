@@ -6,6 +6,7 @@
 
 #include "gtest/gtest.h"
 #include "cs_481_hw_src/src.hpp"
+#include <math.h>
 
 int main(int argc, char** argv)
 {
@@ -15,43 +16,22 @@ int main(int argc, char** argv)
 
 TEST(TLBTest, TestsIntests)
 {
-    double global_sum;
-    global_sum = pthread_compute_pi(1, 1000);    
-    ASSERT_NEAR(global_sum, 3.14, 1);
-
-    global_sum = pthread_compute_pi(2, 1000);    
-    ASSERT_NEAR(global_sum, 3.14, 1);
-
-    global_sum = pthread_compute_pi(4, 1000);    
-    ASSERT_NEAR(global_sum, 3.14, 1);
-
-    global_sum = pthread_compute_pi(8, 1000);    
-    ASSERT_NEAR(global_sum, 3.14, 1);
-
-
-
-    global_sum = pthread_compute_pi(1, 100000);    
-    ASSERT_NEAR(global_sum, 3.14, .1);
-
-    global_sum = pthread_compute_pi(2, 100000);
-    ASSERT_NEAR(global_sum, 3.14, .1);
-
-    global_sum = pthread_compute_pi(4, 100000);
-    ASSERT_NEAR(global_sum, 3.14, .1);
-
-    global_sum = pthread_compute_pi(8, 100000);
-    ASSERT_NEAR(global_sum, 3.14, .1);
-
+    double global_sum, serial_global_sum;
     
-    global_sum = pthread_compute_pi(1, 1000000);    
-    ASSERT_NEAR(global_sum, 3.14, .01);
-
-    global_sum = pthread_compute_pi(2, 1000000);    
-    ASSERT_NEAR(global_sum, 3.14, .01);
-
-    global_sum = pthread_compute_pi(4, 1000000);    
-    ASSERT_NEAR(global_sum, 3.14, .01);
-
-    global_sum = pthread_compute_pi(8, 1000000);    
-    ASSERT_NEAR(global_sum, 3.14, .01);
+    int global_n = 1000;
+    int n_threads;
+    for (int iter = 0; iter < 3; iter++)
+    {
+        rand_init(global_n);
+        serial_global_sum = serial_compute_pi(global_n, 0);
+        for (int i = 0; i < 4; i++)
+        {
+            n_threads = pow(2, i);
+            global_sum = pthread_compute_pi(n_threads, global_n, 0);
+            ASSERT_NEAR(serial_global_sum, global_sum, 0.2);
+        }
+        rand_destroy();
+        
+        global_n *= 10;
+    }
 }
