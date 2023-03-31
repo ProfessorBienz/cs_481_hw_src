@@ -14,14 +14,6 @@ target_link_libraries(test_yield_lock ticket_yield gtest)
 add_test(YieldLockTest ./test_yield_lock)
 
 
-### Queue Tests
-add_executable(test_queue test_queue.cpp)
-target_link_libraries(test_queue queue gtest)
-add_test(QueueTest ./test_queue)
-
-add_executable(test_queue_lock test_queue_lock.cpp)
-target_link_libraries(test_queue_lock queue gtest)
-add_test(QueueLockTest ./test_queue_lock)
 
 ### Semaphore Tests
 add_executable(test_semaphore test_semaphore.cpp)
@@ -55,3 +47,11 @@ add_test(PISemaphoreTest ./test_pi_semaphore)
 
 
 
+### Queue Tests
+add_executable(test_queue test_queue.cpp)
+target_link_libraries(test_queue queue gtest)
+add_test(QueueTest ./test_queue)
+
+add_executable(test_queue_lock test_queue_lock.cpp)
+target_link_libraries(test_queue_lock queue gtest)
+add_test(QueueLockTest ./test_queue_lock)
