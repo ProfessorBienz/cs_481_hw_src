@@ -1,81 +1,57 @@
 #ifndef TEST_SRC_HPP
 #define TEST_SRC_HPP
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <string.h>
-#include <fcntl.h>
 #include <pthread.h>
-#include <queue>
-#include <signal.h>
+#include <semaphore.h>
+#include "stdlib.h"
 
-// Queue Struct
-typedef struct __node_t
-{
-    struct __node_t* next;
-    pthread_t thread;
-} node_t;
 
-typedef struct __queue_t
+// Dining Philosophers
+typedef struct __diners_t
 {
-    node_t* head;
-    node_t* tail;
+    sem_t** forks;
     int size;
-} queue_t;
+    pthread_mutex_t mutex;
+    int philosopher;
+    bool* eat;
+} diners_t;
 
-void queue_init(queue_t& queue);
-int queue_empty(queue_t& queue);
-void queue_add(queue_t& queue, pthread_t thread);
-pthread_t queue_remove(queue_t& queue);
+void eat(diners_t* diner);
+sem_t* left(diners_t* diner);
+sem_t* right(diners_t* diner);
 
-// Lock Struct
-typedef struct __lock_t
+// For you to implement
+void* philosopher(void* args);
+
+
+typedef struct __buffer_t
 {
-    // Needed for ticket locks
-    int ticket;
-    int turn;
+    int limit;
+    int* list;
+    int put_ctr;
+    int get_ctr;
+    int size;
+    pthread_cond_t empty;
+    pthread_cond_t full;
+    pthread_mutex_t mutex;
+    sem_t* sem_empty;
+    sem_t* sem_full;
+} buffer_t;
 
-    // Needed for semaphore lock
-    int S;
-    pthread_mutex_t mutex; 
-
-    // Needed for queue lock
-    int flag;
-    int guard;
-    queue_t queue;
-} lock_t;
-
-void init(lock_t* lock);
-void lock(lock_t* lock);
-void unlock(lock_t* lock);
-void destroy(lock_t* lock);
+void init(buffer_t* buf, int limit);
+void put(buffer_t* buf, int val);
+void get(buffer_t* buf, int* val);
+void destroy(buffer_t* buf);
 
 
-
-// Compute PI
-typedef struct __calc_t
+typedef struct __data_t
 {
-    int global_sum;
-    int global_n_samples;
-    int global_n_threads;
-    lock_t lock;
-} calc_t;
+    buffer_t* buf;
+    int val;
+} data_t;
 
-typedef struct __thread_data_t
-{
-    calc_t* pi_calc;
-    int thread_id;
-} thread_data_t;
+void* producer_thread(void* args);
+void* consumer_thread(void* args);
 
-void* compute_pi(void* arg);
-
-double pthread_compute_pi(int num_threads, int num_samples);
-
-
-// Thread Safe Random Value Generator 
-void rand_init(int global_n);
-void rand_destroy();
-int thread_rand();
 
 #endif
