@@ -22,6 +22,7 @@ typedef struct __queue_t
     node_t* head;
     node_t* tail;
     int size;
+    int initialized;
 } queue_t;
 
 void queue_init(queue_t& queue);

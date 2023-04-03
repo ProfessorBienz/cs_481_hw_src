@@ -18,6 +18,7 @@ TEST(TLBTest, TestsIntests)
     lock_t my_lock;
 
     init(&my_lock);
+    ASSERT_EQ(my_lock.queue.initialized, 1234);
     ASSERT_EQ(my_lock.flag, 0);
     ASSERT_EQ(my_lock.guard, 0);
     ASSERT_EQ(queue_empty(my_lock.queue), 1);

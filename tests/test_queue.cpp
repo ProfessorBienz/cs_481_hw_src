@@ -54,6 +54,7 @@ TEST(TLBTest, TestsIntests)
     init(&my_lock);
     first = false;
     finished0 = finished1 = false;
+    ASSERT_EQ(my_lock.queue.initialized, 1234);
 
     pthread_t pthread0;
     pthread_t pthread1;

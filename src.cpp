@@ -11,6 +11,7 @@ void queue_init(queue_t& queue)
     queue.head = head;
     queue.tail = head;
     queue.size = 0;
+    queue.initialized = 1234;
 }
 
 int queue_empty(queue_t& queue)
