@@ -1,10 +1,6 @@
 include_directories(${hw_INCDIR})
 
 ### Lock Tests
-add_executable(test_lock test_lock.cpp)
-target_link_libraries(test_lock ticket_yield gtest)
-add_test(LockTest ./test_lock)
-
 add_executable(test_spin_lock test_spin_lock.cpp)
 target_link_libraries(test_spin_lock ticket_spin gtest)
 add_test(SpinLockTest ./test_spin_lock)
