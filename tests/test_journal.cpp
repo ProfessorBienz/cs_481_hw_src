@@ -31,6 +31,7 @@ TEST(TLBTest, TestsIntests)
     struct stat st;
     stat(journal_name, &st);
     int size = st.st_size;
+    printf("Size %d\n", size);
     char* file_bytes = (char*)malloc(size*sizeof(char));
     read(fd, file_bytes, size);
 
