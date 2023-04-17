@@ -16,17 +16,24 @@ int main(int argc, char** argv)
 
 TEST(TLBTest, TestsIntests)
 {
-    write_to_journal(5, "txe12", 2, "ib", 2, "bb", 11, "hello world", 5, "txe21");
+    char txb[] = "txe12";
+    char ib[] = "ib";
+    char bb[] = "bb";
+    char str[] = "hello world";
+    char txe[] = "txe21";
+    write_to_journal(5, txb, 2, ib, 2, bb, 11, str, 5, txe);
 
-    int fd = open("journal.txt", O_RDONLY);
-    char* sol = "txe12ibbbhello worldtxe21";
+    char journal_name[] = "journal.txt";
+    char sol[] = "txe12ibbbhello worldtxe21";
+
+    int fd = open(journal_name, O_RDONLY);
 
     struct stat st;
-    stat("journal.txt", &st);
+    stat(journal_name, &st);
     int size = st.st_size;
     char* file_bytes = (char*)malloc(size*sizeof(char));
     read(fd, file_bytes, size);
 
     ASSERT_STREQ(file_bytes, sol);
     
-
+}

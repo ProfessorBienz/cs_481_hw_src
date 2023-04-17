@@ -17,10 +17,16 @@ int main(int argc, char** argv)
 TEST(TLBTest, TestsIntests)
 {
     remove("journal.txt");
-    write_to_journal(5, "txe12", 2, "ib", 2, "bb", 11, "hello world", 0, "");
+    char txb[] = "txe12";
+    char ib[] = "ib";
+    char bb[] = "bb";
+    char str[] = "hello world";
+    char txe[] = "";
+    write_to_journal(5, txb, 2, ib, 2, bb, 11, str, 5, txe);
 
     sleep(1);
 
-    int err = checkpoint(5, "txe21");
+    char txe_err[] = "txe21";
+    int err = checkpoint(5, txe_err);
     ASSERT_EQ(err, -1);
 }

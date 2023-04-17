@@ -16,23 +16,32 @@ int main(int argc, char** argv)
 
 TEST(TLBTest, TestsIntests)
 {
-    remove("journal.txt");
-    write_to_journal(5, "txb43", 2, "IB", 2, "BB", 16, "checkpoint 1,2,3", 6, "TXE150");
+    char journal_name[] = "journal.txt";
+    char data_name[] = "data.txt";
+
+    remove(journal_name);
+
+    char txb[] = "txb43";
+    char ib[] = "IB";
+    char bb[] = "BB";
+    char str[] = "checkpoint 1,2,3";
+    char txe[] = "TXE150";
+    write_to_journal(5, txb, 2, ib, 2, bb, 16, str, 6, txe);
 
     sleep(1);
     
-    int err = checkpoint(6, "TXE150");
+    int err = checkpoint(6, txe);
     ASSERT_EQ(err, 0);
 
     sleep(1);
 
-    char* sol = "txb43IBBBcheckpoing 1,2,3TXE150";
+    char sol[] = "txb43IBBBcheckpoint 1,2,3TXE150";
 
-    int fd = open("journal.txt", O_RDONLY);
-    int fd2 = open("data.txt", O_RDONLY);
+    int fd = open(journal_name, O_RDONLY);
+    int fd2 = open(data_name, O_RDONLY);
 
     struct stat st;
-    stat("journal.txt", &st);
+    stat(journal_name, &st);
     int size = st.st_size;
     ASSERT_GT(size, 0);
 
