@@ -4,6 +4,8 @@
 #include <pthread.h>
 #include <semaphore.h>
 #include "stdlib.h"
+#include <unistd.h>
+#include <sys/syscall.h>
 
 
 // Dining Philosophers
