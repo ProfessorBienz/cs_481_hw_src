@@ -30,7 +30,7 @@ TEST(TLBTest, TestsIntests)
 
     sleep(1);
 
-    int err = checkpoint(5, "txe21");
+    int err = checkpoint(5, txe);
     ASSERT_EQ(err, 0);
 
     sleep(1);
