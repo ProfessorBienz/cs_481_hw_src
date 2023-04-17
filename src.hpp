@@ -6,6 +6,7 @@
 #include "stdlib.h"
 #include <unistd.h>
 #include <sys/syscall.h>
+#include <fcntl.h>
 
 
 // Dining Philosophers
