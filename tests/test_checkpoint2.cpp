@@ -26,11 +26,11 @@ TEST(TLBTest, TestsIntests)
     char bb[] = "BB";
     char str[] = "checkpoint 1,2,3";
     char txe[] = "TXE150";
-    write_to_journal(5, txb, 2, ib, 2, bb, 16, str, 6, txe);
+    write_to_journal(sizeof(txb)-1, txb, sizeof(ib)-1, ib, sizeof(bb)-1, bb, sizeof(str)-1, str, sizeof(txe), txe);
 
     sleep(1);
     
-    int err = checkpoint(6, txe);
+    int err = checkpoint(sizeof(txe), txe);
     ASSERT_EQ(err, 0);
 
     sleep(1);
@@ -42,13 +42,15 @@ TEST(TLBTest, TestsIntests)
 
     struct stat st;
     stat(journal_name, &st);
-    int size = st.st_size;
+    int size = st.st_size + 1;
     ASSERT_GT(size, 0);
 
     char* journal_bytes = (char*)malloc(size);
     char* data_bytes = (char*)malloc(size);
     read(fd, journal_bytes, size);
     read(fd2, data_bytes, size);
+    journal_bytes[size-1] = '\0';
+    data_bytes[size-1] = '\0';
     ASSERT_STREQ(journal_bytes, data_bytes);
     ASSERT_STREQ(sol, journal_bytes);
 

@@ -26,30 +26,31 @@ TEST(TLBTest, TestsIntests)
     char bb[] = "bb";
     char str[] = "hello world";
     char txe[] = "txe21";
-    write_to_journal(5, txb, 2, ib, 2, bb, 11, str, 5, txe);
+    write_to_journal(sizeof(txb)-1, txb, sizeof(ib)-1, ib, sizeof(bb)-1, bb, sizeof(str)-1, str, sizeof(txe), txe);
 
     sleep(1);
 
-    int err = checkpoint(5, txe);
+    int err = checkpoint(sizeof(txe), txe);
     ASSERT_EQ(err, 0);
 
     sleep(1);
 
-    char sol[26] = "txe12ibbbhello worldtxe21";
+    char sol[] = "txe12ibbbhello worldtxe21";
 
     int fd = open(journal_name, O_RDONLY);
     int fd2 = open(data_name, O_RDONLY);
 
-    //struct stat st;
-    //stat(journal_name, &st);
-    //int size = st.st_size;
-    //ASSERT_GT(size, 0);
-    int size = 26;
+    struct stat st;
+    stat(journal_name, &st);
+    int size = st.st_size + 1;
+    ASSERT_GT(size, 0);
 
     char* journal_bytes = (char*)malloc(size);
     char* data_bytes = (char*)malloc(size);
     read(fd, journal_bytes, size);
     read(fd2, data_bytes, size);
+    journal_bytes[size-1] = '\0';
+    data_bytes[size-1] = '\0';
     ASSERT_STREQ(data_bytes, journal_bytes);
     ASSERT_STREQ(sol, data_bytes);
 

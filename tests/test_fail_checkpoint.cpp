@@ -22,11 +22,12 @@ TEST(TLBTest, TestsIntests)
     char bb[] = "bb";
     char str[] = "hello world";
     char txe[] = "";
-    write_to_journal(5, txb, 2, ib, 2, bb, 11, str, 5, txe);
+    write_to_journal(sizeof(txb)-1, txb, sizeof(ib)-1, ib, sizeof(bb)-1, bb, sizeof(str)-1, str, sizeof(txe), txe);
 
     sleep(1);
 
     char txe_err[] = "txe21";
-    int err = checkpoint(5, txe_err);
+    int err = checkpoint(sizeof(txe_err), txe_err);
     ASSERT_EQ(err, -1);
+
 }
