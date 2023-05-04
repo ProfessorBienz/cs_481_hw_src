@@ -44,7 +44,7 @@ TEST(TLBTest, TestsIntests)
     //stat(journal_name, &st);
     //int size = st.st_size;
     //ASSERT_GT(size, 0);
-    int size = 25;
+    int size = 26;
 
     char* journal_bytes = (char*)malloc(size);
     char* data_bytes = (char*)malloc(size);
