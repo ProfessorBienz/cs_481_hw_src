@@ -2,6 +2,18 @@
 
 void eat(diners_t* diner)
 {
+    if (sem_trywait(left(diner)) == 0)
+    {
+        sem_post(left(diner));
+        return;
+    }
+
+    if (sem_trywait(right(diner)) == 0)
+    {
+        sem_post(right(diner));
+        return;
+    }
+        
     diner->eat[diner->philosopher] = true;
 }
 
