@@ -35,7 +35,7 @@ TEST(TLBTest, TestsIntests)
 
     sleep(1);
 
-    char sol[] = "txe12ibbbhello worldtxe21";
+    char sol[26] = "txe12ibbbhello worldtxe21";
 
     int fd = open(journal_name, O_RDONLY);
     int fd2 = open(data_name, O_RDONLY);
